@@ -1,6 +1,7 @@
 #include "dsp.h"
 #include <memory>
 #include <filesystem>
+#include <cassert>
 
 #include <stdio.h>
 #include <errno.h>
@@ -19,6 +20,8 @@ double gain = 5.0; // linear
 std::unique_ptr<::DSP> model;
 std::unordered_map<std::string, double> mNAMParams = {};
 
+double in64[1024];
+double out64[1024];
 
 /**
  * The process callback for this JACK application is called in a
@@ -31,19 +34,29 @@ std::unordered_map<std::string, double> mNAMParams = {};
 int
 process (jack_nframes_t nframes, void *arg)
 {
-
+	assert(nframes == 1024);
 	// todo: figure out i/o types for jack and nam
-        // printf("%u\n", nframes); // 64 per the jackd server settings
+        // printf("%u\n", nframes); // 1024 per the jackd server settings
 
-        double *in, *out;
+        float *in32, *out32; // 32 bit float per jack client settings
 
-        in = (double*) jack_port_get_buffer (input_port, nframes);
-        out = (double*) jack_port_get_buffer (output_port, nframes);
+        in32 = (float *) jack_port_get_buffer (input_port, nframes);
+        out32 = (float *) jack_port_get_buffer (output_port, nframes);
 
 	// memcpy(out, in, sizeof(jack_default_audio_sample_t) * nframes);
 
-	model->process(&in, &out, 1, nframes, 1.0, 1.0, mNAMParams);
+	// convert from float to double on the way in to NAM (may be better to re-write NAM)
+	for (int i = 0; i < nframes; i++) {
+		in64[i] = (double) in32[i];
+	}
+	printf("Starting Process\n");
+	model->process((double**)&in64, (double**)&out64, 1, nframes, 1.0, 1.0, mNAMParams);
 	model->finalize_(nframes);
+
+	// convert from double to float on the way out of NAM
+	for (int i = 0; i < nframes; i++) {
+		out32[i] = (float) out64[i];
+	}
 
         return 0;
 }
