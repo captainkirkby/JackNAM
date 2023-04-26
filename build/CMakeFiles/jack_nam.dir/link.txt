@@ -1,1 +1,0 @@
-/usr/bin/c++ -O3 -DNDEBUG CMakeFiles/jack_nam.dir/src/main.cpp.o -o jack_nam  libneural_amp_modeler.a -ljack 

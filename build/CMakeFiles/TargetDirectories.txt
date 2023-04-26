@@ -1,4 +1,0 @@
-/home/patch/Developer/jack_nam/build/CMakeFiles/rebuild_cache.dir
-/home/patch/Developer/jack_nam/build/CMakeFiles/edit_cache.dir
-/home/patch/Developer/jack_nam/build/CMakeFiles/neural_amp_modeler.dir
-/home/patch/Developer/jack_nam/build/CMakeFiles/jack_nam.dir
