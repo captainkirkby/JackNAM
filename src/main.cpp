@@ -16,6 +16,7 @@ jack_port_t *output_port;
 jack_client_t *client;
 
 double gain = 5.0; // linear
+int count = 0;
 
 std::unique_ptr<::DSP> model;
 std::unordered_map<std::string, double> mNAMParams = {};
@@ -31,7 +32,10 @@ std::unordered_map<std::string, double> mNAMParams = {};
 int
 process (jack_nframes_t nframes, void *arg)
 {
-        // printf("%u\n", nframes); // 1024 per the jackd server settings
+        if(count < 10) {
+		printf("%u\n", nframes); // 1024 per the jackd server settings
+		count++;
+	}
 
         float *in32, *out32; // 32 bit float per jack client settings
 
@@ -40,7 +44,6 @@ process (jack_nframes_t nframes, void *arg)
 
 	// memcpy(out, in, sizeof(jack_default_audio_sample_t) * nframes);
 
-	printf("Starting Process\n");
 	model->process(&in32, &out32, 1, nframes, 1.0, 1.0, mNAMParams);
 	model->finalize_(nframes);
 
